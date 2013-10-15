@@ -29,6 +29,11 @@
       <!-- Bukkit API Version, change if necessary -->
       <version>1.6.2-R0.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>craftbukkit</artifactId>
+      <version>1.6.2-R0.1</version>
+    </dependency>
   </dependencies>
   
   <build>

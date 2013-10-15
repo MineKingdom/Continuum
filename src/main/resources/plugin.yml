@@ -3,3 +3,8 @@ author: ${project.organization.name}
 version: ${project.version}
 
 main: ${bukkitMain}
+
+commands:
+    ctm:
+        description: "base continuum command"
+        usage: "/ctm <subcommand>"
