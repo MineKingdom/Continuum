@@ -5,6 +5,9 @@ import java.util.List;
 import net.minekingdom.continuum.Continuum;
 import net.minekingdom.continuum.utils.GenUtils;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -13,11 +16,15 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.permissions.Permissible;
+import org.bukkit.permissions.Permission;
 
-public class ContinuumDimension {
+public class Dimension {
+	
+	public final Permission ACCESS_PERMISSION;
 	
 	protected final Server server;
-	protected final ContinuumWorld world;
+	protected final Universe universe;
 	
 	protected final String name;
 	
@@ -44,9 +51,14 @@ public class ContinuumDimension {
 	
 	protected boolean keepSpawnInMemory;
 	
-	public ContinuumDimension(Server server, ContinuumWorld world, String name, long seed, String generator, Environment environment, WorldType type) {
+	public Dimension(Server server, Universe universe, String name, long seed, String generator, Environment environment, WorldType type) {
 		this.server = server;
-		this.world  = world;
+		this.universe = universe;
+		
+		this.ACCESS_PERMISSION = new Permission(universe.ACCESS_PERMISSION.getName() + "." + name);
+		this.ACCESS_PERMISSION.addParent(universe.ACCESS_PERMISSION, true);
+		server.getPluginManager().addPermission(ACCESS_PERMISSION);
+		server.getPluginManager().recalculatePermissionDefaults(Universe.ALL_ACCESS_PERMISSION);
 		
 		this.name        = name;
 		this.seed        = seed;
@@ -69,59 +81,59 @@ public class ContinuumDimension {
 		this.keepSpawnInMemory = false;
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, long seed) {
+	public Dimension(Server server, Universe parent, String name, long seed) {
 		this(server, parent, name, seed, "", Environment.NORMAL, WorldType.NORMAL);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, long seed, String generator) {
+	public Dimension(Server server, Universe parent, String name, long seed, String generator) {
 		this(server, parent, name, seed, generator, Environment.NORMAL, WorldType.NORMAL);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, long seed, Environment environment) {
+	public Dimension(Server server, Universe parent, String name, long seed, Environment environment) {
 		this(server, parent, name, seed, "", environment, WorldType.NORMAL);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, long seed, WorldType type) {
+	public Dimension(Server server, Universe parent, String name, long seed, WorldType type) {
 		this(server, parent, name, seed, "", Environment.NORMAL, type);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, long seed, String generator, Environment environment) {
+	public Dimension(Server server, Universe parent, String name, long seed, String generator, Environment environment) {
 		this(server, parent, name, seed, generator, environment, WorldType.NORMAL);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, long seed, String generator, WorldType type) {
+	public Dimension(Server server, Universe parent, String name, long seed, String generator, WorldType type) {
 		this(server, parent, name, seed, generator, Environment.NORMAL, type);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, String generator) {
+	public Dimension(Server server, Universe parent, String name, String generator) {
 		this(server, parent, name, GenUtils.generateSeed(), generator, Environment.NORMAL, WorldType.NORMAL);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, String generator, Environment environment) {
+	public Dimension(Server server, Universe parent, String name, String generator, Environment environment) {
 		this(server, parent, name, GenUtils.generateSeed(), generator, environment, WorldType.NORMAL);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, String generator, WorldType type) {
+	public Dimension(Server server, Universe parent, String name, String generator, WorldType type) {
 		this(server, parent, name, GenUtils.generateSeed(), generator, Environment.NORMAL, type);
 	}
 
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, String generator, Environment environment, WorldType type) {
+	public Dimension(Server server, Universe parent, String name, String generator, Environment environment, WorldType type) {
 		this(server, parent, name, GenUtils.generateSeed(), generator, environment, type);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, Environment environment) {
+	public Dimension(Server server, Universe parent, String name, Environment environment) {
 		this(server, parent, name, GenUtils.generateSeed(), "", environment, WorldType.NORMAL);
 	}
 
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, Environment environment, WorldType type) {
+	public Dimension(Server server, Universe parent, String name, Environment environment, WorldType type) {
 		this(server, parent, name, GenUtils.generateSeed(), "", environment, type);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name, WorldType type) {
+	public Dimension(Server server, Universe parent, String name, WorldType type) {
 		this(server, parent, name, GenUtils.generateSeed(), "", Environment.NORMAL, type);
 	}
 	
-	public ContinuumDimension(Server server, ContinuumWorld parent, String name) {
+	public Dimension(Server server, Universe parent, String name) {
 		this(server, parent, name, GenUtils.generateSeed(), "", Environment.NORMAL, WorldType.NORMAL);
 	}
 	
@@ -133,22 +145,37 @@ public class ContinuumDimension {
 			return this.loaded;
 		}
 		
-		public void load() {
+		public boolean load() {
 			if (isLoaded()) {
 				throw new IllegalStateException("World is already loaded.");
 			}
 			
-			this.handle = server.createWorld(getWorldCreator());
+			WorldCreator creator = getWorldCreator();
+			try {
+				this.handle = server.createWorld(creator);
+			} catch (Throwable t) {
+				t.printStackTrace();
+				if (this.handle == null) {
+					this.handle = Bukkit.getWorld(creator.name());
+					if (handle == null
+							|| handle.getSeed() != creator.seed()
+							|| !handle.getWorldType().equals(creator.type()) 
+							|| !handle.getEnvironment().equals(creator.environment())) {
+						return false;
+					}
+				}
+			}
 			updateHandle();
 			
-			this.handle.setMetadata("continuum.world", new FixedMetadataValue(Continuum.getInstance(), this.world));
+			this.handle.setMetadata("continuum.universe", new FixedMetadataValue(Continuum.getInstance(), this.universe));
 			this.handle.setMetadata("continuum.dimension", new FixedMetadataValue(Continuum.getInstance(), this));
 			
 			this.loaded = true;
+			return true;
 		}
 		
 		protected WorldCreator getWorldCreator() {
-			return new WorldCreator(world.getName() + "_" + name)
+			return new WorldCreator(universe.getName() + "_" + name)
 				.seed(seed)
 				.environment(environment)
 				.generator(generator)
@@ -165,6 +192,7 @@ public class ContinuumDimension {
 			}
 			this.loaded = false;
 			this.server.unloadWorld(this.handle, save);
+			this.handle = null;
 		}
 	
 	/*-------------------------------------*
@@ -206,7 +234,11 @@ public class ContinuumDimension {
 		}
 		
 		private void updateKeepSpawnInMemory() {
-			this.handle.setKeepSpawnInMemory(this.keepSpawnInMemory);
+			try {
+				this.handle.setKeepSpawnInMemory(this.keepSpawnInMemory);
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
 		}
 	
 	/*-------------------------------------*
@@ -221,7 +253,7 @@ public class ContinuumDimension {
 			return seed;
 		}
 	
-		public ContinuumDimension setSeed(long seed) {
+		public Dimension setSeed(long seed) {
 			this.seed = seed;
 			return this;
 		}
@@ -230,7 +262,7 @@ public class ContinuumDimension {
 			return generator;
 		}
 	
-		public ContinuumDimension setGenerator(String generator) {
+		public Dimension setGenerator(String generator) {
 			this.generator = generator;
 			return this;
 		}
@@ -239,7 +271,7 @@ public class ContinuumDimension {
 			return environment;
 		}
 	
-		public ContinuumDimension setEnvironment(Environment environment) {
+		public Dimension setEnvironment(Environment environment) {
 			this.environment = environment;
 			return this;
 		}
@@ -248,7 +280,7 @@ public class ContinuumDimension {
 			return type;
 		}
 	
-		public ContinuumDimension setWorldType(WorldType worldType) {
+		public Dimension setWorldType(WorldType worldType) {
 			this.type = worldType;
 			return this;
 		}
@@ -257,7 +289,7 @@ public class ContinuumDimension {
 			return monsters;
 		}
 	
-		public ContinuumDimension setMonsters(boolean monsters) {
+		public Dimension setMonsters(boolean monsters) {
 			this.monsters = monsters;
 			if (isLoaded()) {
 				updateSpawnFlags();
@@ -269,7 +301,7 @@ public class ContinuumDimension {
 			return animals;
 		}
 	
-		public ContinuumDimension setAnimals(boolean animals) {
+		public Dimension setAnimals(boolean animals) {
 			this.animals = animals;
 			if (isLoaded()) {
 				updateSpawnFlags();
@@ -281,7 +313,7 @@ public class ContinuumDimension {
 			return this.monsterSpawnLimit;
 		}
 	
-		public ContinuumDimension setMonsterSpawnLimit(int monsterSpawnLimit) {
+		public Dimension setMonsterSpawnLimit(int monsterSpawnLimit) {
 			this.monsterSpawnLimit = monsterSpawnLimit;
 			if (isLoaded()) {
 				updateMonsterSpawnLimit();
@@ -293,7 +325,7 @@ public class ContinuumDimension {
 			return this.animalSpawnLimit;
 		}
 	
-		public ContinuumDimension setAnimalSpawnLimit(int animalSpawnLimit) {
+		public Dimension setAnimalSpawnLimit(int animalSpawnLimit) {
 			this.animalSpawnLimit = animalSpawnLimit;
 			if (isLoaded()) {
 				updateAnimalSpawnLimit();
@@ -305,7 +337,7 @@ public class ContinuumDimension {
 			return this.waterMobSpawnLimit;
 		}
 	
-		public ContinuumDimension setWaterMobSpawnLimit(int waterMobSpawnLimit) {
+		public Dimension setWaterMobSpawnLimit(int waterMobSpawnLimit) {
 			this.waterMobSpawnLimit = waterMobSpawnLimit;
 			if (isLoaded()) {
 				updateWaterMobSpawnLimit();
@@ -317,7 +349,7 @@ public class ContinuumDimension {
 			return difficulty;
 		}
 	
-		public ContinuumDimension setDifficulty(Difficulty difficulty) {
+		public Dimension setDifficulty(Difficulty difficulty) {
 			this.difficulty = difficulty;
 			if (isLoaded()) {
 				updateDifficulty();
@@ -329,7 +361,7 @@ public class ContinuumDimension {
 			return pvp;
 		}
 	
-		public ContinuumDimension setPVP(boolean pvp) {
+		public Dimension setPVP(boolean pvp) {
 			this.pvp = pvp;
 			if (isLoaded()) {
 				updatePVP();
@@ -341,7 +373,7 @@ public class ContinuumDimension {
 			return keepSpawnInMemory;
 		}
 		
-		public ContinuumDimension setKeepSpawnInMemory(boolean keepSpawnInMemory) {
+		public Dimension setKeepSpawnInMemory(boolean keepSpawnInMemory) {
 			this.keepSpawnInMemory = keepSpawnInMemory;
 			if (isLoaded()) {
 				updateKeepSpawnInMemory();
@@ -353,7 +385,7 @@ public class ContinuumDimension {
 			return this.scale;
 		}
 		
-		public ContinuumDimension setScale(double scale) {
+		public Dimension setScale(double scale) {
 			this.scale = scale;
 			return this;
 		}
@@ -362,19 +394,51 @@ public class ContinuumDimension {
 			return handle;
 		}
 		
-		public ContinuumWorld getWorld() {
-			return this.world;
+		public Universe getWorld() {
+			return this.universe;
+		}
+		
+	/*-------------------------------------*
+	 *                Misc                 *
+	 *-------------------------------------*/
+		
+		public boolean canAccess(Permissible permissible) {
+			return permissible.hasPermission(ACCESS_PERMISSION);
+		}
+		
+		@Override
+		public int hashCode() {
+			return new HashCodeBuilder()
+				.append(this.name)
+				.append(this.universe)
+				.toHashCode();
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof Dimension)) {
+				return false;
+			}
+			if (o == this) {
+				return true;
+			}
+			Dimension other = (Dimension) o;
+			
+			return new EqualsBuilder()
+				.append(this.name,  other.name)
+				.append(this.universe, other.universe)
+				.isEquals();
 		}
 		
 	/*-------------------------------------*
 	 *               Static                *
 	 *-------------------------------------*/
 		
-		public static ContinuumDimension get(World world) {
+		public static Dimension get(World world) {
 			if (world != null) {
 				List<MetadataValue> meta = world.getMetadata("continuum.dimension");
-				if (meta.size() > 0 && meta.get(0).value() instanceof ContinuumDimension) {
-					return (ContinuumDimension) meta.get(0).value();
+				if (meta.size() > 0 && meta.get(0).value() instanceof Dimension) {
+					return (Dimension) meta.get(0).value();
 				}
 			}
 			return null;

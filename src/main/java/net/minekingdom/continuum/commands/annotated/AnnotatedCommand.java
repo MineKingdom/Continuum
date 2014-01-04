@@ -1,5 +1,6 @@
 package net.minekingdom.continuum.commands.annotated;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,8 +82,14 @@ public class AnnotatedCommand {
 			} else {
 				throw new CommandException("You need the permission " + permission + " to execute this command.");
 			}
-		} catch (CommandException ex) {
-			sender.sendMessage(ChatColor.RED + ex.getMessage());
+		} catch (InvocationTargetException ex) {
+			Throwable tex = ex.getCause();
+			if (tex instanceof CommandException) {
+				sender.sendMessage(ChatColor.RED + tex.getMessage());
+			} else {
+				sender.sendMessage(ChatColor.RED + "An error occured while running this command.");
+				tex.printStackTrace();
+			}
 		} catch (Throwable t) {
 			sender.sendMessage(ChatColor.RED + "An error occured while running this command.");
 			t.printStackTrace();

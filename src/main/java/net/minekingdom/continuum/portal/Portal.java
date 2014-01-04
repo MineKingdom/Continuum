@@ -1,8 +1,8 @@
 package net.minekingdom.continuum.portal;
 
 import net.minekingdom.continuum.Continuum;
-import net.minekingdom.continuum.world.ContinuumDimension;
-import net.minekingdom.continuum.world.ContinuumWorld;
+import net.minekingdom.continuum.world.Dimension;
+import net.minekingdom.continuum.world.Universe;
 
 import org.bukkit.World;
 
@@ -16,16 +16,16 @@ public class Portal {
 		this.destinationPattern2 = destinationPattern2;
 	}
 	
-	public ContinuumDimension getFirstWorld(ContinuumWorld world) {
+	public Dimension getFirstWorld(Universe world) {
 		return getDimension(destinationPattern1, world);
 	}
 	
-	public ContinuumDimension getSecondWorld(ContinuumWorld world) {
+	public Dimension getSecondWorld(Universe world) {
 		return getDimension(destinationPattern2, world);
 	}
 	
-	public ContinuumDimension getOtherWorld(ContinuumWorld world, World first) {
-		ContinuumDimension dim = ContinuumDimension.get(first);
+	public Dimension getOtherWorld(Universe world, World first) {
+		Dimension dim = Dimension.get(first);
 		if (matches(destinationPattern1, world, dim)) {
 			return getSecondWorld(world);
 		} else if (matches(destinationPattern2, world, dim)) {
@@ -34,12 +34,12 @@ public class Portal {
 		return null;
 	}
 	
-	public static boolean matches(String pattern, ContinuumWorld world, ContinuumDimension dim) {
+	public static boolean matches(String pattern, Universe world, Dimension dim) {
 		String[] split = pattern.replaceFirst("\\*", world.getName()).split(":");
 		if (split.length >= 2) {
-			ContinuumWorld w = Continuum.getInstance().getWorldManager().getWorld(split[0]);
+			Universe w = Continuum.getInstance().getWorldManager().getWorld(split[0]);
 			if (w != null && w.equals(world)) {
-				ContinuumDimension d = w.getDimension(split[1]);
+				Dimension d = w.getDimension(split[1]);
 				if (d != null && d.equals(dim)) {
 					return true;
 				}
@@ -48,10 +48,10 @@ public class Portal {
 		return false;
 	}
 
-	public static ContinuumDimension getDimension(String pattern, ContinuumWorld world) {
+	public static Dimension getDimension(String pattern, Universe world) {
 		String[] split = pattern.replaceFirst("\\*", world.getName()).split(":");
 		if (split.length >= 2) {
-			ContinuumWorld w = Continuum.getInstance().getWorldManager().getWorld(split[0]);
+			Universe w = Continuum.getInstance().getWorldManager().getWorld(split[0]);
 			if (w != null) {
 				return w.getDimension(split[1]);
 			}

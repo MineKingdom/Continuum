@@ -4,10 +4,13 @@ import java.io.File;
 
 import net.minekingdom.continuum.commands.BaseCommand;
 import net.minekingdom.continuum.commands.CreateCommand;
+import net.minekingdom.continuum.commands.InfoCommand;
 import net.minekingdom.continuum.commands.ListCommand;
 import net.minekingdom.continuum.commands.TeleportCommand;
 import net.minekingdom.continuum.manager.WorldManager;
 
+import org.bukkit.World.Environment;
+import org.bukkit.WorldType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Continuum extends JavaPlugin {
@@ -16,7 +19,7 @@ public class Continuum extends JavaPlugin {
 	public final static File DATA_FOLDER = new File(SERVER_FOLDER + File.separator + "data" + File.separator + "continuum");
 	public final static File PLAYER_FOLDER = new File(DATA_FOLDER + File.separator + "players");
 	
-	public static File WORLD_FOLDER;
+	public static File UNIVERSE_FOLDER;
 	
 	private static Continuum instance;
 	private WorldManager worldManager;
@@ -25,12 +28,31 @@ public class Continuum extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
+		displayInfos();
+		
 		setupFilesystem();
 		setupManagers();
 		setupCommands();
 		setupListeners();
 	}
 	
+	private void displayInfos() {
+		String envs = "";
+		for (Environment env : Environment.values()) {
+			envs += env.name() + ", ";
+		}
+		envs = envs.substring(0, envs.length() - 2);
+		
+		String wts = "";
+		for (WorldType type : WorldType.values()) {
+			wts += type.name() + "(" + type.getName() + "), ";
+		}
+		wts = wts.substring(0, wts.length() - 2);
+		
+		this.getLogger().info("Detected environments : " + envs);
+		this.getLogger().info("Detected world types : " + wts);
+	}
+
 	private void setupListeners() {
 		this.getServer().getPluginManager().registerEvents(new ContinuumListener(this), this);
 	}
@@ -39,7 +61,8 @@ public class Continuum extends JavaPlugin {
 		BaseCommand cmd = new BaseCommand()
 				.registerSubCommands(new TeleportCommand())
 				.registerSubCommands(new CreateCommand())
-				.registerSubCommands(new ListCommand());
+				.registerSubCommands(new ListCommand())
+				.registerSubCommands(new InfoCommand());
 		
 		this.getCommand("ctm").setExecutor(cmd);
 	}
@@ -50,8 +73,8 @@ public class Continuum extends JavaPlugin {
 	}
 
 	private void setupFilesystem() {
-		WORLD_FOLDER = new File(getDataFolder() + File.separator + "worlds");
-		WORLD_FOLDER.mkdirs();
+		UNIVERSE_FOLDER = new File(getDataFolder() + File.separator + "worlds");
+		UNIVERSE_FOLDER.mkdirs();
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minekingdom.continuum.world.ContinuumWorld;
+import net.minekingdom.continuum.world.Universe;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,13 +14,13 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class WorldConfiguration {
+public class UniverseConfiguration {
 	
 	private File file;
 	private FileConfiguration config;
 
-	public WorldConfiguration(ContinuumWorld world) {
-		this.file = new File(Continuum.WORLD_FOLDER + File.separator + world.getName() + ".yml");
+	public UniverseConfiguration(Universe universe) {
+		this.file = new File(Continuum.UNIVERSE_FOLDER + File.separator + universe.getName() + ".yml");
 		this.config = new YamlConfiguration();
 	}
 	
@@ -48,17 +48,17 @@ public class WorldConfiguration {
 		}
 	}
 	
-	public ConfigurationSection getWorldConfigSection() {
-		ConfigurationSection section = config.getConfigurationSection("world");
+	public ConfigurationSection getDimensionsConfigSection() {
+		ConfigurationSection section = config.getConfigurationSection("dimensions");
 		if (section == null) {
-			return config.createSection("world");
+			return config.createSection("dimensions");
 		}
 		return section;
 	}
 
 	public Map<String, ConfigurationSection> getDimensions() {
 		Map<String, ConfigurationSection> dims = new HashMap<String, ConfigurationSection>();
-		ConfigurationSection section = getWorldConfigSection();
+		ConfigurationSection section = getDimensionsConfigSection();
 		for (String key : section.getKeys(false)) {
 			ConfigurationSection child = section.getConfigurationSection(key);
 			if (child != null) {
@@ -66,10 +66,6 @@ public class WorldConfiguration {
 			}
 		}
 		return dims;
-	}
-
-	public void setDimensions(Map<String, ConfigurationSection> dimensionConfig) {
-		config.createSection("world", dimensionConfig);
 	}
 
 }

@@ -2,8 +2,8 @@ package net.minekingdom.continuum;
 
 import net.minekingdom.continuum.portal.Portal;
 import net.minekingdom.continuum.utils.ConfigUtils;
-import net.minekingdom.continuum.world.ContinuumDimension;
-import net.minekingdom.continuum.world.ContinuumWorld;
+import net.minekingdom.continuum.world.Dimension;
+import net.minekingdom.continuum.world.Universe;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,13 +28,16 @@ public class ContinuumListener implements Listener {
 		final Player player = event.getPlayer();
 		final Location target = event.getTo();
 		
-		if (target.getWorld().equals(event.getFrom().getWorld())) {
+		Universe toWorld = Universe.get(event.getTo().getWorld());
+		Universe fromWorld = Universe.get(event.getFrom().getWorld());
+		
+		if (toWorld != null && toWorld.equals(fromWorld)) {
 			return;
 		}
 		
-		ContinuumDimension dimTo = ContinuumDimension.get(event.getTo().getWorld());
+		Dimension dimTo = Dimension.get(event.getTo().getWorld());
 		
-		if (dimTo != null && !event.getPlayer().hasPermission("continuum.access." + dimTo.getWorld().getName() + "." + dimTo.getName())) {
+		if (dimTo != null && !dimTo.canAccess(player)) {
 			event.setCancelled(true);
 			return;
 		}
@@ -48,6 +51,7 @@ public class ContinuumListener implements Listener {
 		final Player player = event.getPlayer();
 		
 		Block portalBlock = null;
+		portalSearch:
 		for (int i = -1; i < 2; ++i) {
 			for (int j = -1; j < 2; ++j) {
 				for (int k = -1; k < 2; ++k) {
@@ -56,6 +60,7 @@ public class ContinuumListener implements Listener {
 						case PORTAL:
 						case ENDER_PORTAL:
 							portalBlock = b;
+							break portalSearch;
 						default: break;
 					}
 				}
@@ -87,15 +92,15 @@ public class ContinuumListener implements Listener {
 		}
 		
 		
-		ContinuumWorld world = ContinuumWorld.get(player.getWorld());
-		Portal portal = plugin.getWorldManager().getPortal(frame);
+		Universe world = Universe.get(player.getWorld());
+		Portal portal = plugin.getWorldManager().getPortal(portalBlock.getType(), frame);
 		
 		if (world == null || portal == null) {
 			event.setCancelled(true);
 			return;
 		}
 		
-		ContinuumDimension dim = portal.getOtherWorld(world, player.getWorld());
+		Dimension dim = portal.getOtherWorld(world, player.getWorld());
 		
 		if (dim == null) {
 			event.setCancelled(true);

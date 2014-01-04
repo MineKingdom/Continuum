@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import net.minekingdom.continuum.Continuum;
+import net.minekingdom.continuum.nms.ItemStackConfig;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -33,15 +34,24 @@ public class ConfigUtils {
 		ItemStack[] enderChestContents = player.getEnderChest().getContents();
 		
 		for (int i = 0; i < contents.length; ++i) {
-			inventory.set(String.valueOf(i), contents[i]);
+			if (contents[i] == null) {
+				continue;
+			}
+			inventory.set(String.valueOf(i), new ItemStackConfig(contents[i]));
 		}
 		
 		for (int i = 0; i < armorContents.length; ++i) {
-			armor.set(String.valueOf(i), armorContents[i]);
+			if (armorContents[i] == null) {
+				continue;
+			}
+			armor.set(String.valueOf(i), new ItemStackConfig(armorContents[i]));
 		}
 		
 		for (int i = 0; i < enderChestContents.length; ++i) {
-			enderChest.set(String.valueOf(i), enderChestContents[i]);
+			if (enderChestContents[i] == null) {
+				continue;
+			}
+			enderChest.set(String.valueOf(i), new ItemStackConfig(enderChestContents[i]));
 		}
 		
 		config.set("hunger", player.getFoodLevel());
@@ -59,6 +69,9 @@ public class ConfigUtils {
 	}
 
 	public static void loadPlayer(final Player player, final World world) {
+		if (player == null || world == null) {
+			return;
+		}
 		
 		File dir = new File(Continuum.PLAYER_FOLDER + File.separator + world.getName());
 			dir.mkdirs();
@@ -80,18 +93,30 @@ public class ConfigUtils {
 		}
 		
 		ItemStack[] contents = new ItemStack[9 * 4];
+		ItemStackConfig[] contentsConfig = new ItemStackConfig[contents.length];
 		for (int i = 0; i < contents.length; ++i) {
-			contents[i] = inventory.getItemStack(String.valueOf(i), null);
+			contentsConfig[i] = getItemStackConfig(inventory, String.valueOf(i), null);
+			if (contentsConfig[i] != null) {
+				contents[i] = contentsConfig[i].toItemStack();
+			}
 		}
 		
 		ItemStack[] armorContents = new ItemStack[4];
+		ItemStackConfig[] armorContentsConfig = new ItemStackConfig[armorContents.length];
 		for (int i = 0; i < armorContents.length; ++i) {
-			armorContents[i] = armor.getItemStack(String.valueOf(i), null);
+			armorContentsConfig[i] = getItemStackConfig(armor, String.valueOf(i), null);
+			if (armorContentsConfig[i] != null) {
+				armorContents[i] = armorContentsConfig[i].toItemStack();
+			}
 		}
 		
 		ItemStack[] enderChestContents = new ItemStack[player.getEnderChest().getSize()];
+		ItemStackConfig[] enderChestContentsConfig = new ItemStackConfig[enderChestContents.length];
 		for (int i = 0; i < enderChestContents.length; ++i) {
-			enderChestContents[i] = enderChest.getItemStack(String.valueOf(i), null);
+			enderChestContentsConfig[i] = getItemStackConfig(enderChest, String.valueOf(i), null);
+			if (enderChestContentsConfig[i] != null) {
+				enderChestContents[i] = enderChestContentsConfig[i].toItemStack();
+			}
 		}
 		
 		try {
@@ -114,12 +139,21 @@ public class ConfigUtils {
 			player.setCompassTarget(bedSpawn);
 		} else {
 			player.setBedSpawnLocation(null, true);
-			player.setCompassTarget(new Location(world, 0, 0, -Double.MAX_VALUE));
+			player.setCompassTarget(new Location(world, 0, 0, Double.NEGATIVE_INFINITY));
 		}
 		
 		player.setLevel(config.getInt("level", 0));
 		player.setExp((float) config.getDouble("exp", 0));
 	}
 	
+	private static ItemStack getItemStack(ConfigurationSection section, String key, ItemStack def) {
+		Object val = section.get(key, def);
+		return (val instanceof ItemStackConfig) ? ((ItemStackConfig) val).toItemStack() : def;
+	}
+	
+	private static ItemStackConfig getItemStackConfig(ConfigurationSection section, String key, ItemStackConfig def) {
+		Object val = section.get(key, def);
+		return (val instanceof ItemStackConfig) ? (ItemStackConfig) val : def;
+	}
 	
 }

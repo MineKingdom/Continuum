@@ -2,7 +2,8 @@ package net.minekingdom.continuum.commands;
 
 import net.minekingdom.continuum.Continuum;
 import net.minekingdom.continuum.commands.annotated.SubCommand;
-import net.minekingdom.continuum.world.ContinuumWorld;
+import net.minekingdom.continuum.world.Dimension;
+import net.minekingdom.continuum.world.Universe;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,15 +22,19 @@ public class TeleportCommand {
 			String[] name = args[0].split(":");
 			
 			if (name.length >= 2) {
-				World world = Bukkit.getWorld(name[0] + "_" + name[1]);
+				Universe world = Continuum.getInstance().getWorldManager().getWorld(name[0]);
 				if (world == null) {
-					throw new CommandException("Unknown dimension\"" + name[1] + "\" in world " + name[0] + ".");
+					throw new CommandException("Unknown world \"" + name[0] + "\".");
 				}
-				loc = world.getSpawnLocation();
+				Dimension dimension = world.getDimension(name[1]);
+				if (dimension == null) {
+					throw new CommandException("Unknown dimension \"" + name[1] + "\" in world " + name[0] + ".");
+				}
+				loc = dimension.getHandle().getSpawnLocation();
 			} else if (name.length == 1) {
-				ContinuumWorld world = Continuum.getInstance().getWorldManager().getWorld(name[0]);
+				Universe world = Continuum.getInstance().getWorldManager().getWorld(name[0]);
 				if (world == null) {
-					throw new CommandException("Unknown world\"" + name[0] + "\".");
+					throw new CommandException("Unknown world \"" + name[0] + "\".");
 				}
 				loc = world.getSpawn();
 			} else {

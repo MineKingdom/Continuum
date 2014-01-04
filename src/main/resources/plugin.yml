@@ -4,6 +4,8 @@ version: ${project.version}
 
 main: ${bukkitMain}
 
+depend: ["PowerNBT"]
+
 commands:
     ctm:
         description: "base continuum command"
