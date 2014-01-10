@@ -175,11 +175,20 @@ public class Dimension {
 		}
 		
 		protected WorldCreator getWorldCreator() {
-			return new WorldCreator(universe.getName() + "_" + name)
-				.seed(seed)
-				.environment(environment)
-				.generator(generator)
-				.type(type);
+			WorldCreator creator = new WorldCreator(universe.getName() + "_" + name);
+			if (seed != 0) {
+				creator.seed(seed);
+			}
+			if (environment != null) {
+				creator.environment(environment);
+			}
+			if (generator != null) {
+				creator.generator(generator);
+			}
+			if (type != null) {
+				creator.type(type);
+			}
+			return creator;
 		}
 		
 		public void unload() {
