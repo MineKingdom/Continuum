@@ -174,8 +174,12 @@ public class Dimension {
 			return true;
 		}
 		
+		public String getWorldName() {
+			return universe.getName() + "_" + name;
+		}
+		
 		protected WorldCreator getWorldCreator() {
-			WorldCreator creator = new WorldCreator(universe.getName() + "_" + name);
+			WorldCreator creator = new WorldCreator(getWorldName());
 			if (seed != 0) {
 				creator.seed(seed);
 			}

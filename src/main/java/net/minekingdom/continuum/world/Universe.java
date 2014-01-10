@@ -255,12 +255,8 @@ public class Universe {
 		}
 
 		@Override
-		protected WorldCreator getWorldCreator() {
-			return new WorldCreator(universe.getName())
-				.seed(seed)
-				.environment(environment)
-				.generator(generator)
-				.type(type);
+		public String getWorldName() {
+			return universe.getName();
 		}
 		
 	}
