@@ -8,7 +8,6 @@ import net.minekingdom.continuum.utils.ChatFormatter;
 import net.minekingdom.continuum.world.Dimension;
 import net.minekingdom.continuum.world.Universe;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
