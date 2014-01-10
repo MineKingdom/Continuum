@@ -3,9 +3,8 @@ author: ${project.organization.name}
 version: ${project.version}
 
 main: ${bukkitMain}
-load: STARTUP
 
-softdepend: ["PowerNBT"]
+depend: ["PowerNBT"]
 
 commands:
     ctm:
