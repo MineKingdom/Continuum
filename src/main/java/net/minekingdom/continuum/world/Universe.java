@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import net.minekingdom.continuum.UniverseConfiguration;
-import net.minekingdom.continuum.utils.EnumHelper;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -88,11 +87,6 @@ public class Universe {
 					
 					String rawType = dc.getString("world-type", "normal").toUpperCase();
 					WorldType type = WorldType.valueOf(rawType);
-					/*try {
-						type = WorldType.valueOf(rawType);
-					} catch (Throwable t) {
-						type = (WorldType) EnumHelper.addEnum(WorldType.class, rawType, new Class[]{String.class}, new Object[]{rawType});
-					}*/
 				
 				Dimension cd;
 				if (dim.getKey().equals("surface")) {
