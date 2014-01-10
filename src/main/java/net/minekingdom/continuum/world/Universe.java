@@ -213,8 +213,11 @@ public class Universe {
 		return this;
 	}
 	
-	public Universe removeDimension(Dimension dimension) {
-		this.dimensions.remove(dimension);
+	public Universe removeDimension(String dimName) {
+		if (!this.dimensions.containsKey(dimName)) {
+			throw new IllegalArgumentException("There is no \"" + dimName + "\" dimension.");
+		}
+		Dimension dimension = this.dimensions.remove(dimName);
 		if (dimension.isLoaded()) {
 			dimension.unload();
 		}
