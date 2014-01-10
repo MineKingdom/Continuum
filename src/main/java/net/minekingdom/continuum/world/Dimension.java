@@ -182,7 +182,7 @@ public class Dimension {
 			if (environment != null) {
 				creator.environment(environment);
 			}
-			if (generator != null) {
+			if (generator != null && !generator.trim().isEmpty()) {
 				creator.generator(generator);
 			}
 			if (type != null) {
