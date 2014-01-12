@@ -3,7 +3,7 @@ package net.minekingdom.continuum.commands;
 import java.io.File;
 
 import net.minekingdom.continuum.Continuum;
-import net.minekingdom.continuum.commands.annotated.SubCommand;
+import net.minekingdom.continuum.commands.BaseCommand.SubCommand;
 import net.minekingdom.continuum.world.Dimension;
 import net.minekingdom.continuum.world.Universe;
 
@@ -24,7 +24,7 @@ public class ImportCommand {
 		if (name.length > 1) {
 			
 			if (!worldExists(name[0] + "_" + name[1])) {
-				 throw new CommandException("World " + name[0] + "_" + name[1] + " is not a valid world on disk !");
+				throw new CommandException("World " + name[0] + "_" + name[1] + " is not a valid world on disk !");
 			}
 			
 			Universe world = Continuum.getInstance().getWorldManager().getWorld(name[0]);
@@ -45,7 +45,7 @@ public class ImportCommand {
 		} else {
 			
 			if (!worldExists(name[0])) {
-				 throw new CommandException("World " + name[0] + " is not a valid world on disk !");
+				throw new CommandException("World " + name[0] + " is not a valid world on disk !");
 			}
 			
 			Universe world = Continuum.getInstance().getWorldManager().getWorld(name[0]);

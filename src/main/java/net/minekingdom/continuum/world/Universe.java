@@ -161,9 +161,9 @@ public class Universe {
 	
 	public void unload(boolean save) {
 		 for (Dimension dim : getDimensions()) {
-		  dim.unload(save);
+			 dim.unload(save);
 		 }
-		}
+	}
 
 	public void save() {
 		

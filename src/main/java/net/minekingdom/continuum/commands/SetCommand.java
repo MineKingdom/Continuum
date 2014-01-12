@@ -1,13 +1,12 @@
 package net.minekingdom.continuum.commands;
 
 import net.minekingdom.continuum.Continuum;
-import net.minekingdom.continuum.commands.annotated.SubCommand;
+import net.minekingdom.continuum.commands.BaseCommand.SubCommand;
 import net.minekingdom.continuum.world.Dimension;
 import net.minekingdom.continuum.world.Universe;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 

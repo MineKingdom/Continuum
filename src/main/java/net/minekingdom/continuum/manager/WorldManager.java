@@ -86,8 +86,8 @@ public class WorldManager {
 	}
 	
 	public void remove(String universe) {
-		 this.worlds.remove(universe);
-		}
+		this.worlds.remove(universe);
+	}
 	
 	public void loadPortals() {
 		
