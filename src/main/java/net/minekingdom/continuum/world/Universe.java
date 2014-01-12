@@ -154,6 +154,16 @@ public class Universe {
 		this.spawn = spawnVector;
 		this.spawnDimension = spawnDimension;
 	}
+	
+	public void unload() {
+		unload(true);
+	}
+	
+	public void unload(boolean save) {
+		 for (Dimension dim : getDimensions()) {
+		  dim.unload(save);
+		 }
+		}
 
 	public void save() {
 		

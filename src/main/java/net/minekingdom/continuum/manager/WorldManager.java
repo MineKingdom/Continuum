@@ -85,6 +85,10 @@ public class WorldManager {
 		reloadWorlds();
 	}
 	
+	public void remove(String universe) {
+		 this.worlds.remove(universe);
+		}
+	
 	public void loadPortals() {
 		
 		List<Map<?, ?>> portals = plugin.getConfig().getMapList("portals");

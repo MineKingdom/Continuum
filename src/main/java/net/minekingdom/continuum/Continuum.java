@@ -4,8 +4,12 @@ import java.io.File;
 
 import net.minekingdom.continuum.commands.BaseCommand;
 import net.minekingdom.continuum.commands.CreateCommand;
+import net.minekingdom.continuum.commands.DeleteCommands;
+import net.minekingdom.continuum.commands.ImportCommand;
 import net.minekingdom.continuum.commands.InfoCommand;
 import net.minekingdom.continuum.commands.ListCommand;
+import net.minekingdom.continuum.commands.LoadCommands;
+import net.minekingdom.continuum.commands.SetCommand;
 import net.minekingdom.continuum.commands.TeleportCommand;
 import net.minekingdom.continuum.manager.WorldManager;
 
@@ -62,7 +66,11 @@ public class Continuum extends JavaPlugin {
 				.registerSubCommands(new TeleportCommand())
 				.registerSubCommands(new CreateCommand())
 				.registerSubCommands(new ListCommand())
-				.registerSubCommands(new InfoCommand());
+				.registerSubCommands(new InfoCommand())
+				.registerSubCommands(new LoadCommands())
+				.registerSubCommands(new DeleteCommands())
+				.registerSubCommands(new ImportCommand())
+				.registerSubCommands(new SetCommand());
 		
 		this.getCommand("ctm").setExecutor(cmd);
 	}
