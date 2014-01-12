@@ -1,7 +1,7 @@
 package net.minekingdom.continuum.commands;
 
 import net.minekingdom.continuum.Continuum;
-import net.minekingdom.continuum.commands.annotated.SubCommand;
+import net.minekingdom.continuum.commands.BaseCommand.SubCommand;
 import net.minekingdom.continuum.world.Dimension;
 import net.minekingdom.continuum.world.Universe;
 

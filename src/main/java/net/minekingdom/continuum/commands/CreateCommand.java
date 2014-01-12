@@ -3,7 +3,7 @@ package net.minekingdom.continuum.commands;
 import java.util.Map;
 
 import net.minekingdom.continuum.Continuum;
-import net.minekingdom.continuum.commands.annotated.SubCommand;
+import net.minekingdom.continuum.commands.BaseCommand.SubCommand;
 
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
