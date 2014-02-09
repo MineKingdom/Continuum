@@ -14,7 +14,7 @@ import me.dpohvar.powernbt.nbt.NBTTagList;
 import org.bukkit.Material;
 import org.bukkit.Utility;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.craftbukkit.v1_6_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemStackConfig implements ConfigurationSerializable {
